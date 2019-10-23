@@ -2,8 +2,10 @@ import path
 import os
 
 stack = []
+running = []
 
 def C0_run(orders): #key: 下一个执行的指令序号
+    running.append([0,0])
     key = 0
     while key < len(orders):
         key = C0_execute(orders[key],key)
@@ -13,13 +15,26 @@ def C0_execute(order,key):
         stack.append(order[2])
         key+=1
     elif order[0]=="LOD":
-        pass
+        if order[1]==1:
+            stack.append(stack[order[2]])
+        else:
+            stack.append(stack[order[2]+running[-1][0]])
+        key+=1
     elif order[0]=="STO":
-        pass
+        if order[1]==1:
+            stack[order[2]]=stack[-1]
+            stack.pop()
+        else:
+            stack[order[2]+running[-1][0]]=stack[-1]
+            stack.pop()
+        key+=1
     elif order[0]=="CAL":
-        pass
+        running.append([key,len(stack)])
+        key=order[2]
     elif order[0]=="INT":
-        pass
+        for i in range(order[2]):
+            stack.append(0)
+        key+=1
     elif order[0]=="JMP":
         key = order[2]
     elif order[0]=="JPC":
@@ -28,25 +43,25 @@ def C0_execute(order,key):
         else:
             key += 1
     elif order[0]=="ADD":
-        num = stack[-2] + stack[-1]
+        num = int(stack[-2]) + int(stack[-1])
         stack.pop()
         stack.pop()
         stack.append(num)
         key+=1
     elif order[0]=="SUB":
-        num = stack[-2] - stack[-1]
+        num = int(stack[-2]) - int(stack[-1])
         stack.pop()
         stack.pop()
         stack.append(num)
         key+=1
     elif order[0]=="MUL":
-        num = stack[-2] * stack[-1]
+        num = int(stack[-2]) * int(stack[-1])
         stack.pop()
         stack.pop()
         stack.append(num)
         key+=1
     elif order[0]=="DIV":
-        num = stack[-2] / stack[-1]
+        num = int(stack[-2]) / int(stack[-1])
         stack.pop()
         stack.pop()
         stack.append(num)
@@ -60,7 +75,10 @@ def C0_execute(order,key):
         stack.pop()
         key+=1
     elif order[0]=="RET":
-        pass
+        for i in range(len(stack)-running[-1][1]):
+            stack.pop()
+        key=running[-1][0]+1
+        running.pop()
 
     return key
 
