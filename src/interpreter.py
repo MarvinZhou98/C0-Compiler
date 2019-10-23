@@ -12,20 +12,20 @@ def C0_run(orders): #key: 下一个执行的指令序号
 
 def C0_execute(order,key):
     if order[0]=="LIT":
-        stack.append(order[2])
+        stack.append(int(order[2]))
         key+=1
     elif order[0]=="LOD":
         if order[1]==1:
-            stack.append(stack[order[2]])
+            stack.append(int(stack[order[2]]))
         else:
-            stack.append(stack[order[2]+running[-1][0]])
+            stack.append(int(stack[order[2]+running[-1][1]]))
         key+=1
     elif order[0]=="STO":
         if order[1]==1:
-            stack[order[2]]=stack[-1]
+            stack[order[2]]=int(stack[-1])
             stack.pop()
         else:
-            stack[order[2]+running[-1][0]]=stack[-1]
+            stack[order[2]+running[-1][1]]=int(stack[-1])
             stack.pop()
         key+=1
     elif order[0]=="CAL":
@@ -67,7 +67,9 @@ def C0_execute(order,key):
         stack.append(num)
         key+=1
     elif order[0]=="RED":
+        print(":",end=" ")
         num = input()
+        num = int(num)
         stack.append(num)
         key+=1
     elif order[0]=="WRT":
