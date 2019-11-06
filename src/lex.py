@@ -1,24 +1,30 @@
 import ply.lex as lex
 
 def buildLex():
-    tokens = (
-        'NUMBER',
-        'PLUS',
-        'MINUS',
-        'TIMES',
-        'DIVIDE',
-        'LPAREN',
-        'RPAREN',
-    )
+    reserved = {
+        'if' : 'IF',
+        'else' : 'ELSE',
+        'void' : 'VOID',
+        'int' : 'INT',
+        'while' : 'WHILE',
+        'return' : 'RETURN',
+        'scanf' : 'SCANF',
+        'printf' : 'PRINTF'
+    }
 
-    t_PLUS = r"\+"
-    t_MINUS = r"-"
-    t_TIMES = r"\*"
-    t_DIVIDE = r"/"
-    t_LPAREN = r"\("
-    t_RPAREN = r"\)"
+    tokens = [
+        'NUM',
+        'ID'
+    ] + list(reserved.values())
 
-    def t_NUMBER(t):
+    literals = "+-*/=(){},;"
+
+    def t_ID(t):
+        r"[a-zA-Z_]\w*"
+        t.type = reserved.get(t.value,"ID")
+        return t
+
+    def t_NUM(t):
         r"\d+"
         t.value = int(t.value)
         return t
@@ -37,7 +43,7 @@ def buildLex():
 
 
 if __name__ == "__main__":
-    str = "1+2 3*4"
+    str = "int a=1;\nprintf(a)"
     lexer = buildLex()
     lexer.input(str)
     for tok in lexer:
