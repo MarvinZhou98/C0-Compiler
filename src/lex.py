@@ -1,5 +1,6 @@
 import ply.lex as lex
 
+#返回lex和tokens
 def buildLex():
     reserved = {
         'if' : 'IF',
@@ -44,7 +45,7 @@ def buildLex():
 
 if __name__ == "__main__":
     str = "int a=1;\nprintf(a)"
-    lexer = buildLex()
+    lexer = buildLex()[0]
     lexer.input(str)
     for tok in lexer:
         print(tok)
