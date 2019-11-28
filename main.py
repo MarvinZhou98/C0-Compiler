@@ -12,4 +12,3 @@ with open(filepath,"r") as f:
     lexer.input(str)
     for tok in lexer:
         token.append(tok)
-print(token)
