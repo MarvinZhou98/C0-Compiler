@@ -2,10 +2,11 @@ import sys
 
 def test(token):    #tonken: 标识符序列
 
-    tab_var_glo = []    #全局变量表
+    tab_var_glo = ["return"]    #全局变量表
     tab_var_loc = []    #全局变量表
     tab_fun = []    #函数表
     isGlo = True    #判断是否在全局作用域
+    isVoid = True
     #指令
     var_glo = []    #全局变量定义指令
     fun_main = []   #主函数指令
@@ -74,16 +75,37 @@ def test(token):    #tonken: 标识符序列
         order = ["INT",0,len(tab_var_glo) if isGlo is True else len(tab_var_loc)]
         return t+1,order
         
-        
-
     def fun_int_deal(start):    #int函数 返回指针位置
-        pass
+        isVoid = False
+        t = start
+        orders = []
+        fun_name = token[t+1].value
+        if token[t+2].type=="(" and token[t+3].type==")" and token[t+4].type=="{":
+            t = t+4
+            t,orders = block_deal(t)
+        else:
+            error(0)
+        orders = order_sort(orders)
+        tab_fun.append([fun_name,orders,0])
+        return t+1
 
     def fun_void_deal(start):   #void函数 返回指针位置
-        pass
+        isVoid = True
+        t = start
+        orders = []
+        fun_name = token[t+1].value
+        if token[t+2].type=="(" and token[t+3].type==")" and token[t+4].type=="{":
+            t = t+4
+            t,orders = block_deal(t)
+        else:
+            error(0)
+        orders = order_sort(orders)
+        tab_fun.append([fun_name,orders,0])
+        return t+1
 
     def fun_main_deal(start):   #主函数 返回指针位置
-        t = start+1
+        isVoid = True
+        t = start
         if token[t+2].type=="(" and token[t+3].type==")" and token[t+4].type=="{":
             t = t+4
             t,fun_main = block_deal(t)
@@ -111,26 +133,26 @@ def test(token):    #tonken: 标识符序列
         t = start
         if token[t].type == "IF":
             t,order = sen_if_deal(t)
-            return t+1,order
+            return t,order
         elif token[t].type == "WHILE":
             t,order = sen_while_deal(t)
-            return t+1,order
+            return t,order
         elif token[t].type == "RETURN":
             t,order = sen_return_deal(t)
-            return t+1,order
+            return t,order
         elif token[t].type == "SCANF":
             t,order = sen_scanf_deal(t)
-            return t+1,order
+            return t,order
         elif token[t].type == "PRINTF":
             t,order = sen_printf_deal(t)
-            return t+1,order
+            return t,order
         elif token[t].type == "ID":
             if token[t+1].type == "=":
                 t,order = sen_eval_deal(t)
-                return t+1,order
+                return t,order
             elif token[t+1].type == "(" and token[t+2].type == ")":
                 t,order = sen_fun_deal(t)
-                return t+1,order
+                return t,order
             else:
                 error(0)
         else:
@@ -138,16 +160,90 @@ def test(token):    #tonken: 标识符序列
 
     #语句处理
     def sen_if_deal(start):
-        pass
+        t=start
+        orders=[]
+        t=t+2
+        t,order1=exp_deal(t)
+        order1 = order_sort(order1)
+        t=t+1
+        order2 = []
+        while True: #语句处理
+            if token[t].type == "}":
+                break
+            else:
+                t,order = sentence_deal(t)
+                order2.append(order)
+        order2 = order_sort(order2)
+        t = t+1
+        if token[t].type == "ELSE":
+            order3 = []
+            t = t+2
+            while True: #语句处理
+                if token[t].type == "}":
+                    break
+                else:
+                    t,order = sentence_deal(t)
+                    order3.append(order)
+                order3 = order_sort(order3)
+                t = t+1
+            orders.append(order1)
+            orders.append(["JPC",0,len(order2)+2])
+            orders.append(order2)
+            orders.append(["JMP",0,len(order3)+1])
+            orders.append(order3)
+            return t,orders
+        orders.append(order1)
+        orders.append(["JPC",0,len(order2)+1])
+        orders.append(order2)
+        return t,orders
+        
+
+
 
     def sen_while_deal(start):
-        pass
+        t = start
+        orders = []
+        t = t+2
+        t,order1 = exp_deal(t)
+        order1 = order_sort(order1)
+        t = t+1
+        order2 = []
+        while True: #语句处理
+            if token[t].type == "}":
+                break
+            else:
+                t,order = sentence_deal(t)
+                order2.append(order)
+        order2 = order_sort(order2)
+        orders.append(order1)
+        orders.append(["JPC",0,len(order2)+2])
+        orders.append(order2)
+        orders.append(["JMP",0,-len(order1)-len(order2)-1])
+        return t+1,orders
 
     def sen_eval_deal(start):
-        pass
+        t = start
+        orders = []
+        a,b = var_find(token[t].value)
+        t = t+2
+        t,order = exp_deal(t)
+        orders.append(order)
+        orders.append(["STO",a,b])
+        return t,orders
 
     def sen_return_deal(start):
-        pass
+        t = start
+        orders = []
+        if isVoid is True:
+            orders.append(["RET",0,0])
+            return t+1,orders
+        else:
+            t = t+1
+            t,order = exp_deal(t)
+            orders.append(order)
+            orders.append(["STO",1,0])
+            orders.append(["RET",0,0])
+            return t,orders
 
     def sen_scanf_deal(start):
         t = start
@@ -163,9 +259,102 @@ def test(token):    #tonken: 标识符序列
 
 
     def sen_printf_deal(start):
-        pass
+        t = start
+        orders = []
+        t = t+2
+        t,order = exp_deal(t)
+        orders.append(order)
+        orders.append(["WRT",0,0])
+        return t,orders
+
 
     def sen_fun_deal(strat):
-        pass
+        t = strat
+        order=[]
+        order.append(["CAL",0,token[t].value])
+        t = t+3
+        return t,order
 
-    #表达式处理 TODO
+    #表达式处理
+    def exp_deal(start):
+        t = start
+        order = []
+        stack = []
+
+        def pop():
+            if len(stack) == 0:
+                error(0)
+            elif stack[-1] == "+":
+                order.append(["ADD",0,0])
+            elif stack[-1] == "-":
+                order.append(["SUB",0,0])
+            elif stack[-1] == "*":
+                order.append(["MUL",0,0])
+            elif stack[-1] == "/":
+                order.append(["DIV",0,0])
+            else:
+                error(0)
+            stack.pop()
+
+        while True:
+            if token[t].type=="NUMBER":
+                order.append(["LIT",0,eval(token[t].value)])
+                t = t+1
+            elif token[t].type == "ID" and token[t+1].type !="(":
+                a,b = var_find(token[t].value)
+                order.append(["LOD",a,b])
+                t = t+1
+            elif token[t].type == "ID" and token[t+1].type == "(" and token[t+2] == ")":
+                order.append(["CAL",0,token[t].value])
+                order.append(["LOD",1,0])
+                t = t+3
+            elif token[t].type == "(":
+                stack.append("(")
+                t = t+1
+            elif token[t].type == ")":
+                while len(stack)!=0 and stack[-1]!="(":
+                    pop()
+                t = t+1
+                if len(stack)!=0:
+                    stack.pop()
+                else:
+                    break
+            elif token[t].type == "+":
+                while True:
+                    if len(stack)==0 or stack[-1]=="(":
+                        stack.append("+")
+                        break
+                    else:
+                        pop()
+                t = t+1
+            elif token[t].type == "-":
+                while True:
+                    if len(stack)==0 or stack[-1]=="(":
+                        stack.append("-")
+                        break
+                    else:
+                        pop()
+                t = t+1
+            elif token[t].type == "*":
+                stack.append("*")
+                t = t+1
+            elif token[t].type == "/":
+                stack.append("/")
+                t = t+1
+            elif token[t].type == ";":
+                while len(stack)!=0:
+                    pop()
+                t = t+1
+                break
+        return t,order
+
+    def order_sort(orders):
+        o = []
+        def work(order):
+            if isinstance(order[0],str):
+                o.append(order)
+                return
+            else:
+                for x in order:
+                    work(x)
+        return o
