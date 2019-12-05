@@ -26,6 +26,7 @@ def test(token):    #tonken: 标识符序列
             elif token[t].type == "VOID" and token[t+1].type == "ID":
                 t = fun_void_deal(t)
             else:
+                print(token[t].type)
                 break
         if token[t].type == "VOID" and token[t+1].type == "MAIN":
             t = fun_main_deal(t)
@@ -87,6 +88,7 @@ def test(token):    #tonken: 标识符序列
             error(0)
         orders = order_sort(orders)
         tab_fun.append([fun_name,orders,0])
+        print(tab_fun)  #1
         return t+1
 
     def fun_void_deal(start):   #void函数 返回指针位置
@@ -101,6 +103,7 @@ def test(token):    #tonken: 标识符序列
             error(0)
         orders = order_sort(orders)
         tab_fun.append([fun_name,orders,0])
+        print(tab_fun)  #1
         return t+1
 
     def fun_main_deal(start):   #主函数 返回指针位置
@@ -111,6 +114,7 @@ def test(token):    #tonken: 标识符序列
             t,fun_main = block_deal(t)
         else:
             error(0)
+        print(fun_main) #1
         return t+1
 
     def block_deal(start):  #分程序 返回指针位置，指令
@@ -358,3 +362,10 @@ def test(token):    #tonken: 标识符序列
                 for x in order:
                     work(x)
         return o
+
+    print("开始编译")
+    program_deal()
+    print("tab_fun",tab_fun)
+    print("var_glo",var_glo)
+    print("fun_main",fun_main)
+    return tab_fun,var_glo,fun_main
