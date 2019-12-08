@@ -96,7 +96,7 @@ def test(token):    #tonken: 标识符序列
         tab_fun.append([fun_name,orders,0])
         return t
 
-    def fun_void_deal(start):   #void函数 返回指针位置  TODO
+    def fun_void_deal(start):   #void函数 返回指针位置
         print("fun_void_deal",token[start])
         isVoid = True
         t = start
