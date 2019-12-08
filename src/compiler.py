@@ -3,10 +3,10 @@ import sys
 def test(token):    #tonken: 标识符序列
 
     tab_var_glo = ["return"]    #全局变量表
-    tab_var_loc = []    #全局变量表
+    tab_var_loc = [[]]    #全局变量表
     tab_fun = []    #函数表
     isGlo = [True]    #判断是否在全局作用域
-    isVoid = True
+    isVoid = [True]
     #指令0.
     var_glo = []    #全局变量定义指令
     fun_main = []   #主函数指令
@@ -41,14 +41,14 @@ def test(token):    #tonken: 标识符序列
             if id not in tab_var_glo:
                 tab_var_glo.append(id)
         else:   #局部变量
-            if id not in tab_var_loc:
-                tab_var_loc.append(id)
+            if id not in tab_var_loc[0]:
+                tab_var_loc[0].append(id)
 
     def var_find(id):   #查找变量 返回变量地址 0or1,a
         print("var_find",id)
         #先查找局部变量,再查找全局变量
-        if id in tab_var_loc:
-            return 0,tab_var_loc.index(id)
+        if id in tab_var_loc[0]:
+            return 0,tab_var_loc[0].index(id)
         elif id in tab_var_glo:
             return 1,tab_var_glo.index(id)
         else:
@@ -78,12 +78,12 @@ def test(token):    #tonken: 标识符序列
                 else:
                     error(0)
             t = t+1
-        order = ["INT",0,len(tab_var_glo) if isGlo[0] is True else len(tab_var_loc)]
+        order = ["INT",0,len(tab_var_glo) if isGlo[0] is True else len(tab_var_loc[0])]
         return t+1,order
         
     def fun_int_deal(start):    #int函数 返回指针位置
         print("fun_int_deal",token[start])
-        isVoid = False
+        isVoid[0] = False
         t = start
         orders = []
         fun_name = token[t+1].value
@@ -98,7 +98,7 @@ def test(token):    #tonken: 标识符序列
 
     def fun_void_deal(start):   #void函数 返回指针位置
         print("fun_void_deal",token[start])
-        isVoid = True
+        isVoid[0] = True
         t = start
         orders = []
         fun_name = token[t+1].value
@@ -113,7 +113,7 @@ def test(token):    #tonken: 标识符序列
 
     def fun_main_deal(start):   #主函数 返回指针位置
         print("fun_main_deal",token[start])
-        isVoid = True
+        isVoid[0] = True
         t = start
         if token[t+2].type=="(" and token[t+3].type==")" and token[t+4].type=="{":
             t = t+4
@@ -127,7 +127,7 @@ def test(token):    #tonken: 标识符序列
     def block_deal(start):  #分程序 返回指针位置，指令
         print("block_deal",token[start])
         t = start+1
-        tab_var_loc = []    #初始化局部变量表
+        tab_var_loc[0] = []    #初始化局部变量表
         orders = []
         if token[t].type == "INT" and token[t+1].type == "ID" and token[t+2].type != "(":
             t,order = var_deal(t)
@@ -251,7 +251,7 @@ def test(token):    #tonken: 标识符序列
         print("sen_return_deal",token[start])
         t = start
         orders = []
-        if isVoid is True:
+        if isVoid[0] is True:
             orders.append(["RET",0,0])
             return t+2,orders
         else:
@@ -325,7 +325,7 @@ def test(token):    #tonken: 标识符序列
                 a,b = var_find(token[t].value)
                 order.append(["LOD",a,b])
                 t = t+1
-            elif token[t].type == "ID" and token[t+1].type == "(" and token[t+2] == ")":
+            elif token[t].type == "ID" and token[t+1].type == "(" and token[t+2].type == ")":
                 order.append(["CAL",0,token[t].value])
                 order.append(["LOD",1,0])
                 t = t+3

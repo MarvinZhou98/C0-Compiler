@@ -8,10 +8,15 @@ int gcd(){
 	}
 	return a;
 }
-void main(){
-	int ans;
+void run(){
 	scanf(a);
 	scanf(b);
+	return;
+}
+void main(){
+	int ans;
+	run();
 	ans = gcd();
 	printf(ans);
+	return;
 }
