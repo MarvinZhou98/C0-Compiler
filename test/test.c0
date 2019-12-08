@@ -13,9 +13,11 @@ void fun(){
 void main(){
 	scanf(b);
 	scanf(a);
-	if(b)
-		fun();	
-	else
-		printf(a);	
+	if(b){
+		fun();
+	}	
+	else{
+		printf(a);
+	}
 	return;
 }

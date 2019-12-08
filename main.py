@@ -6,16 +6,17 @@ t = 0 #标记当前位置
 print("请输入c0文件地址")
 filepath = input()
 with open(filepath,"r") as f:
-    str = ""
+    s = ""
     for line in f:
-        str = str + line
+        s = s + line
     lexer = lex.buildLex()
-    lexer.input(str)
+    lexer.input(s)
     for tok in lexer:
         token.append(tok)
 
 print(token)
-tab_fun,var_glo,fun_main = compiler.test(token)
-print("tab_fun",tab_fun)
-print("var_glo",var_glo)
-print("fun_main",fun_main)
+order = compiler.test(token)
+with open("temp.txt","w") as f:
+    for o in order:
+        s = o[0] + " " + str(o[1]) + " " + str(o[2]) + "\n"
+        f.write(s)

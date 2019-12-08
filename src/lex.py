@@ -10,7 +10,8 @@ def buildLex():
         'while' : 'WHILE',
         'return' : 'RETURN',
         'scanf' : 'SCANF',
-        'printf' : 'PRINTF'
+        'printf' : 'PRINTF',
+        'main' : "MAIN"
     }
 
     tokens = [

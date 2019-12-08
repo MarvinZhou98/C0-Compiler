@@ -1,4 +1,3 @@
-import path
 import os
 
 stack = []
@@ -93,7 +92,8 @@ if __name__ == "__main__":
     filepath = input()
     with open(filepath,"r") as f:
         for line in f:
-            sentence.append(line)
+            if line.split():
+                sentence.append(line)
 
     for str in sentence:
         orders.append([str[0:3],int(str[4]),int(str[6:])])
