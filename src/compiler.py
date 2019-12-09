@@ -3,7 +3,7 @@ import sys
 def test(token):    #tonken: 标识符序列
 
     tab_var_glo = ["return"]    #全局变量表
-    tab_var_loc = [[]]    #全局变量表
+    tab_var_loc = [[]]    #局部变量表
     tab_fun = []    #函数表
     isGlo = [True]    #判断是否在全局作用域
     isVoid = [True]
@@ -13,6 +13,32 @@ def test(token):    #tonken: 标识符序列
 
     def error(type):    #错误处理
         print("error ",type)
+        if type==1:
+            print("程序发生错误")
+        elif type==2:
+            print("变量查找失败")
+        elif type == 3:
+            print("缺失分号")
+        elif type == 4:
+            print("缺失逗号")
+        elif type == 5:
+            print("变量定义错误")
+        elif type == 6:
+            print("int 函数声明错误")
+        elif type == 7:
+            print("void 函数声明错误")
+        elif type == 8:
+            print("主函数")
+        elif type == 9:
+            print("缺失等于号")
+        elif type == 10:
+            print("语句声明错误")
+        elif type == 11:
+            print("读入语句错误")
+        elif type == 12:
+            print("栈空")
+        elif type == 13:
+            print("意外的符号")
         sys.exit(0)
 
     def program_deal(): #入口
@@ -52,7 +78,7 @@ def test(token):    #tonken: 标识符序列
         elif id in tab_var_glo:
             return 1,tab_var_glo.index(id)
         else:
-            error(0)
+            error(2)
 
     def var_deal(start):    #变量定义 返回指针位置，指令
         print("var_deal",token[start])
@@ -65,18 +91,18 @@ def test(token):    #tonken: 标识符序列
                 if flag == True:
                     break
                 else:
-                    error(0)
+                    error(3)
             elif token[t].type == ",":
                 if flag == True:
                     flag = False
                 else:
-                    error(0)
+                    error(4)
             elif token[t].type == "ID":
                 if flag == False:
                     var_add(token[t].value)
                     flag = True
                 else:
-                    error(0)
+                    error(5)
             t = t+1
         order = ["INT",0,len(tab_var_glo) if isGlo[0] is True else len(tab_var_loc[0])]
         return t+1,order
@@ -91,7 +117,7 @@ def test(token):    #tonken: 标识符序列
             t = t+4
             t,orders = block_deal(t)
         else:
-            error(0)
+            error(6)
         orders = order_sort(orders)
         tab_fun.append([fun_name,orders,0])
         return t
@@ -106,7 +132,7 @@ def test(token):    #tonken: 标识符序列
             t = t+4
             t,orders = block_deal(t)
         else:
-            error(0)
+            error(7)
         orders = order_sort(orders)
         tab_fun.append([fun_name,orders,0])
         return t
@@ -121,7 +147,7 @@ def test(token):    #tonken: 标识符序列
             fm = order_sort(fm)
             fun_main.append(fm)
         else:
-            error(0)
+            error(8)
         return t
 
     def block_deal(start):  #分程序 返回指针位置，指令
@@ -167,9 +193,9 @@ def test(token):    #tonken: 标识符序列
                 t,order = sen_fun_deal(t)
                 return t,order
             else:
-                error(0)
+                error(9)
         else:
-            error(0)
+            error(10)
 
     #语句处理
     def sen_if_deal(start):
@@ -273,7 +299,7 @@ def test(token):    #tonken: 标识符序列
             order.append(["STO",a,b])
             return t+5,order
         else:
-            error(0)
+            error(11)
 
 
     def sen_printf_deal(start):
@@ -304,7 +330,7 @@ def test(token):    #tonken: 标识符序列
 
         def pop():
             if len(stack) == 0:
-                error(0)
+                error(12)
             elif stack[-1] == "+":
                 order.append(["ADD",0,0])
             elif stack[-1] == "-":
@@ -314,7 +340,7 @@ def test(token):    #tonken: 标识符序列
             elif stack[-1] == "/":
                 order.append(["DIV",0,0])
             else:
-                error(0)
+                error(13)
             stack.pop()
 
         while True:
